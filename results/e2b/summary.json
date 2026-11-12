@@ -85,6 +85,66 @@
    "valid_path_rate": 0.968,
    "mean_cands": 38.936,
    "cand_recall": 0.944
+  },
+  "F_graph_edges": {
+   "hit@1": [
+    0.448,
+    0.368,
+    0.536
+   ],
+   "hit@3": [
+    0.632,
+    0.544,
+    0.72
+   ],
+   "valid_path_rate": 0.984,
+   "mean_cands": 38.936,
+   "cand_recall": 0.952
+  },
+  "G_callgraph": {
+   "hit@1": [
+    0.504,
+    0.424,
+    0.6
+   ],
+   "hit@3": [
+    0.6,
+    0.52,
+    0.68
+   ],
+   "valid_path_rate": 0.9786666666666666,
+   "mean_cands": 40.24,
+   "cand_recall": 0.944
+  },
+  "H_callgraph_edges": {
+   "hit@1": [
+    0.424,
+    0.344,
+    0.512
+   ],
+   "hit@3": [
+    0.68,
+    0.592,
+    0.76
+   ],
+   "valid_path_rate": 0.9813333333333334,
+   "mean_cands": 40.24,
+   "cand_recall": 0.944
+  },
+  "J_bm25_matched_call": {
+   "hit@1": [
+    0.48,
+    0.392,
+    0.568
+   ],
+   "hit@3": [
+    0.648,
+    0.56,
+    0.728
+   ],
+   "valid_path_rate": 0.9813333333333334,
+   "mean_cands": 40.24,
+   "cand_recall": 0.936
   }
  },
  "per_repo_hit@3": {
@@ -161,6 +221,78 @@
    ]
   },
   "E_bm25_matched": {
+   "psf/requests": [
+    0.5384615384615384,
+    13
+   ],
+   "Textualize/rich": [
+    0.6041666666666666,
+    48
+   ],
+   "encode/httpx": [
+    1.0,
+    1
+   ],
+   "fastapi/fastapi": [
+    0.6984126984126984,
+    63
+   ]
+  },
+  "F_graph_edges": {
+   "psf/requests": [
+    0.7692307692307693,
+    13
+   ],
+   "Textualize/rich": [
+    0.5416666666666666,
+    48
+   ],
+   "encode/httpx": [
+    1.0,
+    1
+   ],
+   "fastapi/fastapi": [
+    0.6666666666666666,
+    63
+   ]
+  },
+  "G_callgraph": {
+   "psf/requests": [
+    0.5384615384615384,
+    13
+   ],
+   "Textualize/rich": [
+    0.5208333333333334,
+    48
+   ],
+   "encode/httpx": [
+    1.0,
+    1
+   ],
+   "fastapi/fastapi": [
+    0.6666666666666666,
+    63
+   ]
+  },
+  "H_callgraph_edges": {
+   "psf/requests": [
+    0.6153846153846154,
+    13
+   ],
+   "Textualize/rich": [
+    0.5625,
+    48
+   ],
+   "encode/httpx": [
+    1.0,
+    1
+   ],
+   "fastapi/fastapi": [
+    0.7777777777777778,
+    63
+   ]
+  },
+  "J_bm25_matched_call": {
    "psf/requests": [
     0.5384615384615384,
     13

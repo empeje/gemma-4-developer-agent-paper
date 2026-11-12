@@ -41,7 +41,10 @@ class Index:
         self.paths = sorted(files)
         self.files = files
         self.bm25 = BM25Okapi([tok(p.replace("/", " ") + " " + p.replace("/", " ") + " " + files[p]) for p in self.paths])
+        self.imports = {p: set() for p in self.paths}   # directed: p imports q
         self.graph = self._graph()
+        self.calls = {p: set() for p in self.paths}     # directed: p calls code defined in q
+        self.callgraph = self._callgraph()
 
     def search(self, query, k=20):
         sc = self.bm25.get_scores(tok(query))
@@ -72,8 +75,45 @@ class Index:
                 for m in mods:
                     q = mod2path.get(m)
                     if q and q != p:
-                        g[p].add(q); g[q].add(p)
+                        g[p].add(q); g[q].add(p); self.imports[p].add(q)
         return g
+
+    def _callgraph(self):
+        """Undirected file-level graph induced by symbol-level calls (AST). Names defined in >3 files
+        (e.g. __init__, get) are ignored as ambiguous."""
+        defs = {}
+        for p, src in self.files.items():
+            try: tree = ast.parse(src)
+            except SyntaxError: continue
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    defs.setdefault(node.name, set()).add(p)
+        g = {p: set() for p in self.paths}
+        for p, src in self.files.items():
+            try: tree = ast.parse(src)
+            except SyntaxError: continue
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Call):
+                    f = node.func
+                    name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
+                    D = defs.get(name)
+                    if D and len(D) <= 3:
+                        for q in D:
+                            if q != p:
+                                g[p].add(q); g[q].add(p); self.calls[p].add(q)
+        return g
+
+    def edge_card(self, p, cands, kind, n=6):
+        """File card plus its edges to other candidates, e.g. 'imports: a.py; imported by: b.py'."""
+        out_e = self.imports if kind == "import" else self.calls
+        outs = sorted(q for q in out_e[p] if q in cands)
+        ins = sorted(q for q in self.paths if p in out_e[q] and q in cands)
+        verb = "imports" if kind == "import" else "calls"
+        rev = "imported by" if kind == "import" else "called by"
+        lines = [self.summary(p, n)]
+        if outs: lines.append(f"    {verb}: " + ", ".join(outs))
+        if ins: lines.append(f"    {rev}: " + ", ".join(ins))
+        return "\n".join(lines)
 
     def summary(self, p, n=6):
         """Compact file card: path + top-level defs."""

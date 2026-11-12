@@ -33,9 +33,24 @@ def build_prompt(strategy, task, ix):
     elif strategy == "E_bm25_matched":   # size-matched control for D
         n = len(set(seeds[:5]).union(*[ix.graph[p] for p in seeds[:5]]))
         cands = ix.search(q, n)
+    elif strategy == "F_graph_edges":    # same candidates as D, but edges are shown to the model
+        s = set(seeds[:5])
+        for p in seeds[:5]: s |= ix.graph[p]
+        cands = sorted(s); kind = "import"
+    elif strategy in ("G_callgraph", "H_callgraph_edges"):
+        s = set(seeds[:5])
+        for p in seeds[:5]: s |= ix.callgraph[p]
+        cands = sorted(s); kind = "call"
+    elif strategy == "J_bm25_matched_call":   # size-matched control for G/H
+        n = len(set(seeds[:5]).union(*[ix.callgraph[p] for p in seeds[:5]]))
+        cands = ix.search(q, n)
     else: raise ValueError(strategy)
     if cands is not None:
-        cards = [ix.summary(p) if strategy != "B_tree" else p for p in sorted(cands)]
+        cset = set(cands)
+        if strategy in ("F_graph_edges", "H_callgraph_edges"):
+            cards = [ix.edge_card(p, cset, kind) for p in sorted(cands)]
+        else:
+            cards = [ix.summary(p) if strategy != "B_tree" else p for p in sorted(cands)]
         body = "Candidate files:\n" + "\n".join(cards) + "\n"
     return INSTR, head + body + "\nJSON list of 3 file paths:", cands
 

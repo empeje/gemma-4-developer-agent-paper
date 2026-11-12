@@ -15,6 +15,22 @@
   "E_bm25_matched": [
    0.6864406779661016,
    118
+  ],
+  "F_graph_edges": [
+   0.6638655462184874,
+   119
+  ],
+  "G_callgraph": [
+   0.635593220338983,
+   118
+  ],
+  "H_callgraph_edges": [
+   0.7203389830508474,
+   118
+  ],
+  "J_bm25_matched_call": [
+   0.6837606837606838,
+   117
   ]
  },
  "paired_diff_hit@3": {
@@ -37,6 +53,31 @@
    -0.008,
    -0.072,
    0.056
+  ],
+  "F_graph_edges - E_bm25_matched": [
+   -0.016,
+   -0.104,
+   0.072
+  ],
+  "F_graph_edges - D_graph": [
+   0.008,
+   -0.08,
+   0.096
+  ],
+  "G_callgraph - J_bm25_matched_call": [
+   -0.048,
+   -0.104,
+   0.008
+  ],
+  "H_callgraph_edges - J_bm25_matched_call": [
+   0.032,
+   -0.056,
+   0.112
+  ],
+  "H_callgraph_edges - G_callgraph": [
+   0.08,
+   0.0,
+   0.16
   ]
  },
  "paired_diff_hit@1": {
@@ -59,6 +100,31 @@
    0.048,
    -0.024,
    0.12
+  ],
+  "F_graph_edges - E_bm25_matched": [
+   -0.04,
+   -0.128,
+   0.04
+  ],
+  "F_graph_edges - D_graph": [
+   -0.032,
+   -0.112,
+   0.048
+  ],
+  "G_callgraph - J_bm25_matched_call": [
+   0.024,
+   -0.032,
+   0.088
+  ],
+  "H_callgraph_edges - J_bm25_matched_call": [
+   -0.056,
+   -0.144,
+   0.04
+  ],
+  "H_callgraph_edges - G_callgraph": [
+   -0.08,
+   -0.168,
+   0.008
   ]
  },
  "graph_unique_recall_tasks": {

@@ -6,7 +6,7 @@ from common import ROOT
 random.seed(1)
 TAG = sys.argv[1] if len(sys.argv) > 1 else "e2b"
 RES = ROOT / "results" / TAG
-S = sys.argv[2:] or ["A_nocontext","B_tree","C_bm25_20","D_graph","E_bm25_matched"]
+S = sys.argv[2:] or ["A_nocontext","B_tree","C_bm25_20","D_graph","E_bm25_matched","F_graph_edges","G_callgraph","H_callgraph_edges","J_bm25_matched_call"]
 R = {s: {r["instance_id"]: r for r in map(json.loads, open(RES / f"localize_{s}.jsonl"))} for s in S}
 ids = sorted(set.intersection(*[set(v) for v in R.values()]))
 h3 = lambda s, i: int(any(p in R[s][i]["gold"] for p in R[s][i]["pred"]))
@@ -19,7 +19,9 @@ def pdiff(a, b, f):
     d = [f(a, i) - f(b, i) for i in ids]
     ms = sorted(sum(random.choices(d, k=len(d))) / len(d) for _ in range(5000))
     return sum(d) / len(d), ms[125], ms[4875]
-for a, b in [("D_graph","E_bm25_matched"),("C_bm25_20","B_tree"),("D_graph","C_bm25_20"),("E_bm25_matched","C_bm25_20")]:
+for a, b in [("D_graph","E_bm25_matched"),("C_bm25_20","B_tree"),("D_graph","C_bm25_20"),("E_bm25_matched","C_bm25_20"),
+               ("F_graph_edges","E_bm25_matched"),("F_graph_edges","D_graph"),
+               ("G_callgraph","J_bm25_matched_call"),("H_callgraph_edges","J_bm25_matched_call"),("H_callgraph_edges","G_callgraph")]:
     if a in R and b in R:
         out["paired_diff_hit@3"][f"{a} - {b}"] = pdiff(a, b, h3)
         out["paired_diff_hit@1"][f"{a} - {b}"] = pdiff(a, b, h1)
