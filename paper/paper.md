@@ -4,7 +4,7 @@
 
 ## Abstract
 
-Offline software-engineering agents must first decide which files to read, and for small local models the context window is the scarce resource. We show that a simple, fully local recipe works well: shortlist files with BM25, then let a small instruction-tuned model choose. On 125 real, post-cutoff issues from four Python repositories (the public tasks of the Gemma 4 Developer Agent competition), Gemma 4 E2B (4-bit, running on a laptop with no fine-tuning) places a gold file in its top three for **65.6%** of issues, a gain of **+12.8 points** over the BM25 ranking it was given (paired 95% CI [3.2, 22.4]) and **+16.0 points** over showing the model the entire file tree (CI [6.4, 25.6]). A controlled comparison shows the recipe does not need code-graph machinery: expanding the shortlist with import-graph neighbours raises candidate recall (0.88 to 0.95) but a size-matched BM25 control does equally well (hit@3 0.648 vs 0.624; difference -2.4 points, CI [-8.8, 4.0]), so the simplest pipeline is also the cheapest. Finally, a recall-versus-selection decomposition shows where the remaining headroom is: when the gold file is on screen, the model selects it 66-75% of the time, which identifies model selection, rather than retrieval, as the most promising target for tuning. Code and per-task predictions are released for exact reproduction.
+Offline software-engineering agents must first decide which files to read, and for small local models the context window is the scarce resource. We show that a simple, fully local recipe works well: shortlist files with BM25, then let a small instruction-tuned model choose. On 125 real, post-cutoff issues from four Python repositories (the public tasks of the Gemma 4 Developer Agent competition), Gemma 4 E2B (4-bit, running on a laptop with no fine-tuning) places a gold file in its top three for **65.6%** of issues, a gain of **+12.8 points** over the BM25 ranking it was given (paired 95% CI [3.2, 22.4]) and **+16.0 points** over showing the model the entire file tree (CI [6.4, 25.6]). A controlled comparison shows the recipe does not need code-graph machinery: expanding the shortlist with import-graph neighbours raises candidate recall (0.88 to 0.95) but a size-matched BM25 control does equally well (hit@3 0.648 vs 0.624; difference -2.4 points, CI [-8.8, 4.0]), so the simplest pipeline is also the cheapest. The pattern replicates with Gemma 4 12B (hit@3 up to 0.79), where, in addition, a wider shortlist helps (+7.2 points, CI [1.6, 12.8]) as the model gets better at discriminating among candidates. Finally, a recall-versus-selection decomposition shows where the remaining headroom is: when the gold file is on screen, the model selects it 66-75% of the time, which identifies model selection, rather than retrieval, as the most promising target for tuning. Code and per-task predictions are released for exact reproduction.
 
 ## 1. Introduction
 
@@ -44,7 +44,7 @@ Contributions: (i) a laptop-scale recipe, BM25 shortlist followed by LLM selecti
 
 We also report BM25 alone (no LLM) as hit@1/hit@3 of its ranking.
 
-**Models and decoding.** Gemma 4 E2B-it (4-bit MLX) and Gemma 4 12B-it (OptiQ 4-bit MLX), greedy decoding, thinking disabled, at most 120 new tokens. No fine-tuning.
+**Models and decoding.** Gemma 4 E2B-it (4-bit MLX, all strategies) and Gemma 4 12B-it (OptiQ 4-bit MLX; strategies C, D, E only), greedy decoding, thinking disabled, at most 120 new tokens. No fine-tuning.
 
 **Metrics.** hit@1: first predicted path is a gold file. hit@3: any of three is gold. Valid-path rate: predicted paths that exist in the repository. Candidate recall: gold file in the candidate set. We report 95% bootstrap CIs over tasks (2,000 resamples) and paired bootstrap differences (5,000).
 
@@ -65,7 +65,16 @@ n = 125 tasks; 95% bootstrap CIs in brackets.
 
 ### 4.2 Replication with Gemma 4 12B
 
-*The 12B replication (strategies C, E, D) was still running when this draft was rendered; its results are not yet included.*
+Same protocol and tasks, strategies C, D and E (n = 125; the 12B run of strategy B was not completed in time and A was not run).
+
+| System | hit@1 | hit@3 | valid paths | mean cands | cand. recall |
+|---|---|---|---|---|---|
+| BM25 alone (no LLM) | 0.328 [.248,.408] | 0.528 [.440,.616] | - | - | - |
+| C: BM25 top-20 | 0.576 [.488,.664] | 0.720 [.640,.800] | 0.98 | 19.9 | 0.88 |
+| D: BM25 top-5 + import graph | 0.608 [.528,.696] | 0.752 [.680,.824] | 0.97 | 38.9 | 0.95 |
+| E: BM25 size-matched to D | 0.632 [.552,.712] | 0.792 [.720,.864] | 0.97 | 38.9 | 0.94 |
+
+The larger model is better in every configuration (hit@3 0.72-0.79 versus 0.62-0.66). The two findings on graph structure replicate: D does not beat its size-matched control E (hit@3 -4.0 points, paired CI [-10.4, 2.4]), and the graph supplies a gold file that BM25 misses in only 4 tasks (BM25 supplies one the graph misses in 3). One finding changes with scale: at 12B a wider shortlist helps, with E ahead of C by +7.2 points of hit@3 (CI [1.6, 12.8]), whereas at E2B it did not (-0.8 points, CI [-7.2, 5.6]). Conditional on the gold file being a candidate, 12B selects it in 79-84% of cases (E2B: 66-75%), so selection improves with scale but remains the main source of misses.
 
 ### 4.3 Analysis
 
@@ -75,7 +84,7 @@ n = 125 tasks; 95% bootstrap CIs in brackets.
 
 **Graph expansion does not help once size is controlled.** D reaches higher candidate recall than C (0.95 vs 0.88) but a lower hit@3 (-3.2 points, CI [-11.2, 4.8]). Against the size-matched control E, the difference is -2.4 points (CI [-8.8, 4.0]) on hit@3 and -0.8 points (CI [-6.4, 4.8]) on hit@1. Graph neighbours supply the gold file that BM25 misses in only 4 tasks, while BM25 supplies one that the graph misses in 3. The graph's recall gain over C is mostly a size effect: E, with the same number of files but no structure, recovers 0.94.
 
-**Selection is the bottleneck.** Conditional on the gold file being among the candidates, hit@3 is 0.746 for C, 0.655 for D and 0.686 for E. A quarter to a third of cases fail even when the answer is on the screen. Gains in candidate recall cannot exceed this ceiling, which explains why recall improvements did not translate into hits.
+**Selection is the bottleneck.** Conditional on the gold file being among the candidates, hit@3 is 0.746 for C, 0.655 for D and 0.686 for E. A quarter to a third of cases fail even when the answer is on the screen. Gains in candidate recall cannot exceed this ceiling, which explains why recall improvements did not translate into hits at E2B. At 12B the ceiling rises (79-84%) and a wider shortlist does pay off, so the best candidate-set size depends on model scale.
 
 **By repository.** Hit@3 for C is 0.73 on fastapi (n=63), 0.56 on rich (n=48) and 0.62 on requests (n=13); the ordering of strategies is similar across repositories, though with these sample sizes per-repository differences are not significant.
 
@@ -89,7 +98,7 @@ A small Gemma 4 model on a laptop can localize issues usefully with nothing more
 
 ## Reproducibility
 
-Code, per-task predictions and summaries: https://github.com/empeje/gemma-4-developer-agent-paper (`experiments/`, `results/`). Commands: `python experiments/localize.py --tag e2b`, `python experiments/analyze.py e2b`, `python experiments/paired.py e2b`.
+Code, per-task predictions and summaries: https://github.com/empeje/gemma-4-developer-agent-paper (`experiments/`, `results/`). Commands: `python experiments/localize.py --tag e2b`, `python experiments/analyze.py e2b`, `python experiments/paired.py e2b`, `python experiments/llm_vs_bm25.py e2b`; replace `e2b` with `12b` for the replication.
 
 ## References
 

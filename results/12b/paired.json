@@ -1,0 +1,55 @@
+{
+ "conditional_hit@3_given_gold_in_candidates": {
+  "C_bm25_20": [
+   0.8181818181818182,
+   110
+  ],
+  "D_graph": [
+   0.7899159663865546,
+   119
+  ],
+  "E_bm25_matched": [
+   0.8389830508474576,
+   118
+  ]
+ },
+ "paired_diff_hit@3": {
+  "D_graph - E_bm25_matched": [
+   -0.04,
+   -0.104,
+   0.024
+  ],
+  "D_graph - C_bm25_20": [
+   0.032,
+   -0.032,
+   0.096
+  ],
+  "E_bm25_matched - C_bm25_20": [
+   0.072,
+   0.016,
+   0.128
+  ]
+ },
+ "paired_diff_hit@1": {
+  "D_graph - E_bm25_matched": [
+   -0.024,
+   -0.096,
+   0.04
+  ],
+  "D_graph - C_bm25_20": [
+   0.032,
+   -0.032,
+   0.096
+  ],
+  "E_bm25_matched - C_bm25_20": [
+   0.056,
+   -0.008,
+   0.12
+  ]
+ },
+ "graph_unique_recall_tasks": {
+  "graph_only": 4,
+  "bm25_only": 3,
+  "hit3_on_graph_only": 3
+ }
+}

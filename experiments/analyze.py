@@ -12,7 +12,9 @@ def ci(xs, B=2000):
     return sum(xs) / len(xs), ms[int(.025 * B)], ms[int(.975 * B)]
 
 rows = {}
+WANT = sys.argv[2:]
 for p in sorted(RES.glob("localize_*.jsonl")):
+    if WANT and p.stem[9:] not in WANT: continue
     rows[p.stem[9:]] = {r["instance_id"]: r for r in map(json.loads, open(p))}
 common_ids = set.intersection(*[set(v) for v in rows.values()])
 
