@@ -8,8 +8,7 @@ from common import *
 from mlx_lm import load, generate
 from mlx_lm.sample_utils import make_sampler
 
-MODEL = str(ROOT / "models" / "gemma-4-e2b-it-4bit")
-RES = ROOT / "results"; RES.mkdir(exist_ok=True)
+MODELS = {"e2b": "gemma-4-e2b-it-4bit", "12b": "gemma-4-12b-it-optiq-4bit"}
 
 INSTR = ("You are a software engineer triaging a bug report. Decide which source files of the repository "
          "must be edited to resolve the issue. Answer ONLY with a JSON list of exactly 3 file paths, "
@@ -47,10 +46,11 @@ def parse(out, valid=None):
     return L[:3]
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--limit", type=int, default=0)
+    ap = argparse.ArgumentParser(); ap.add_argument("--limit", type=int, default=0); ap.add_argument("--tag", default="e2b")
     ap.add_argument("--strategies", default="A_nocontext,B_tree,C_bm25_20,D_graph,E_bm25_matched")
     a = ap.parse_args()
-    model, tokenizer = load(MODEL)
+    RES = ROOT / "results" / a.tag; RES.mkdir(parents=True, exist_ok=True)
+    model, tokenizer = load(str(ROOT / "models" / MODELS[a.tag]))
     tasks = [(t, gold_files(t)) for t in load_tasks()]
     tasks = [(t, g) for t, g in tasks if g]
     if a.limit: tasks = tasks[:a.limit]
