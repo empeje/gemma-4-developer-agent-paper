@@ -1,20 +1,22 @@
-# Retrieval Beats Structure: Why Import-Graph Context Does Not Help Small Local Models Localize Bugs
+# A Laptop-Scale Recipe for Issue Localization: Precise Shortlists Let a 2B Gemma 4 Model Find the Right Files
 
-*A controlled study of context construction for file-level issue localization with Gemma 4 on consumer hardware*
+*A controlled study of context construction for file-level localization with Gemma 4 on consumer hardware, no fine-tuning required*
 
 ## Abstract
 
-Local software-engineering agents built on small open models must decide which files of a repository to read before they can fix anything, and their context window is the scarce resource. A popular remedy is to give the model code-graph structure, such as the import neighbourhood of retrieved files. We test whether this helps. On 125 real, post-cutoff issues from four Python repositories (the public tasks of the Gemma 4 Developer Agent competition), we measure file-level localization of Gemma 4 E2B (and, in a replication, Gemma 4 12B) under five context strategies, all on a laptop with no fine-tuning. We find: (1) repository context is essential, since without it the model hallucinates non-existent paths 91% of the time; (2) a retrieve-then-select pipeline (BM25 shortlist, LLM choice) beats showing the whole file tree by 16 points of hit@3 (paired 95% CI [6.4, 25.6]); (3) expanding the shortlist with import-graph neighbours raises the candidate set's gold recall from 0.88 to 0.95, yet **does not improve** the LLM's final choice relative to a size-matched BM25 control (paired difference in hit@3 of -2.4 points, 95% CI [-8.8, 4.0]). Candidate recall is therefore not the bottleneck; selection precision is: even when the gold file is in view, the model picks it in only 66-75% of cases. We release all code and per-task predictions so every number is reproducible.
+Offline software-engineering agents must first decide which files to read, and for small local models the context window is the scarce resource. We show that a simple, fully local recipe works well: shortlist files with BM25, then let a small instruction-tuned model choose. On 125 real, post-cutoff issues from four Python repositories (the public tasks of the Gemma 4 Developer Agent competition), Gemma 4 E2B (4-bit, running on a laptop with no fine-tuning) places a gold file in its top three for **65.6%** of issues, a gain of **+12.8 points** over the BM25 ranking it was given (paired 95% CI [3.2, 22.4]) and **+16.0 points** over showing the model the entire file tree (CI [6.4, 25.6]). A controlled comparison shows the recipe does not need code-graph machinery: expanding the shortlist with import-graph neighbours raises candidate recall (0.88 to 0.95) but a size-matched BM25 control does equally well (hit@3 0.648 vs 0.624; difference -2.4 points, CI [-8.8, 4.0]), so the simplest pipeline is also the cheapest. Finally, a recall-versus-selection decomposition shows where the remaining headroom is: when the gold file is on screen, the model selects it 66-75% of the time, which identifies model selection, rather than retrieval, as the most promising target for tuning. Code and per-task predictions are released for exact reproduction.
 
 ## 1. Introduction
 
-Agentic software-engineering systems such as SWE-agent and Agentless first localize (decide where to edit) and then repair. Localization errors are unrecoverable downstream, and for models small enough to run on a laptop the prompt budget forces a choice about what to show. Tool-rich agents spend turns exploring; cheaper pipelines build the context in advance. A recurring idea, behind work such as RepoGraph, is that the *structure* of the codebase (imports, calls) supplies relevant files that lexical retrieval misses.
+Agentic software-engineering systems such as SWE-agent and Agentless first localize (decide where to edit) and then repair. Putting this step on a laptop-sized model makes private, offline coding assistants practical, but the prompt budget forces a choice about what to show. A recurring idea, behind work such as RepoGraph, is that the *structure* of the codebase supplies relevant files that lexical retrieval misses.
 
-That idea is plausible but is usually evaluated by comparing against weaker baselines that see *less* context. Adding graph neighbours also adds candidates, so any gain could come from simply showing more files. We therefore ask a narrow, falsifiable question:
+We ask which ingredients of the context actually matter for a small local model, using a protocol that holds the number of candidate files fixed so that "more files" is not mistaken for "better structure":
 
-> **RQ.** At a fixed number of candidate files, does import-graph expansion help a small local model localize issues better than plain lexical retrieval?
+> **RQ1.** Does a retrieved shortlist help a small model more than showing everything?
+> **RQ2.** At equal candidate count, does import-graph expansion add value over plain lexical retrieval?
+> **RQ3.** Where is the remaining headroom: candidate recall or model selection?
 
-Contributions: (i) a controlled, size-matched protocol for evaluating structural context; (ii) a negative result for import-graph expansion at this scale, together with a decomposition into candidate recall and selection precision that locates the bottleneck; (iii) a fully reproducible harness (about 200 lines, runs on an Apple M1 Max in about 11 minutes of inference for the 2B model).
+Contributions: (i) a laptop-scale recipe, BM25 shortlist followed by LLM selection, with a measured, statistically supported gain over both of its components; (ii) a size-matched protocol for evaluating structural context, with the finding that structure is not needed at this scale; (iii) a decomposition that locates the headroom in model selection; (iv) a reproducible harness (about 200 lines, about 11 minutes of inference for the 2B model on an Apple M1 Max).
 
 ## 2. Related Work
 
@@ -69,7 +71,7 @@ n = 125 tasks; 95% bootstrap CIs in brackets.
 
 **Context is necessary.** Without candidates (A), 91% of predicted paths do not exist; hit@3 is 0.144.
 
-**Narrow retrieval beats a full tree.** C improves on B by 16.0 points of hit@3 (paired 95% CI [6.4, 25.6]) although B's candidate recall is 1.0. Showing everything is worse than showing a good shortlist, so the model is distracted by irrelevant files. The LLM also improves on the lexical ranking it was given: hit@1 0.440 versus 0.328 for BM25 alone.
+**Narrow retrieval beats a full tree.** C improves on B by 16.0 points of hit@3 (paired 95% CI [6.4, 25.6]) although B's candidate recall is 1.0. Showing everything is worse than showing a good shortlist; a plausible (untested) explanation is that irrelevant files dilute the small model's attention. The LLM also improves on the lexical ranking it was given: +11.2 points of hit@1 (paired CI [1.6, 20.8]) and +12.8 points of hit@3 (CI [3.2, 22.4]) over BM25 alone (`results/e2b/llm_vs_bm25.json`).
 
 **Graph expansion does not help once size is controlled.** D reaches higher candidate recall than C (0.95 vs 0.88) but a lower hit@3 (-3.2 points, CI [-11.2, 4.8]). Against the size-matched control E, the difference is -2.4 points (CI [-8.8, 4.0]) on hit@3 and -0.8 points (CI [-6.4, 4.8]) on hit@1. Graph neighbours supply the gold file that BM25 misses in only 4 tasks, while BM25 supplies one that the graph misses in 3. The graph's recall gain over C is mostly a size effect: E, with the same number of files but no structure, recovers 0.94.
 
@@ -83,7 +85,7 @@ Four repositories (two dominate), 125 tasks: CIs are wide and small effects, suc
 
 ## 6. Conclusion
 
-For small local models, how many files are shown and how well the model can discriminate among them matter more than whether the shortlist's recall is raised by graph structure. Practitioners building offline agents should first invest in a precise lexical shortlist, then in the model's selection ability (for instance by fine-tuning or reranking), before adding structural expansion.
+A small Gemma 4 model on a laptop can localize issues usefully with nothing more than a lexical shortlist and a well-posed selection prompt, and that simple recipe beats both its retrieval component and a show-everything prompt. Because structural expansion brought no measurable benefit once candidate count was controlled, practitioners can skip graph construction for this step and spend the saved effort where our decomposition points: improving the model's selection among a handful of plausible files, for instance by fine-tuning or reranking, which is a natural next step for the Gemma 4 family.
 
 ## Reproducibility
 

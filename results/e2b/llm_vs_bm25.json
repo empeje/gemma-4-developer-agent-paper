@@ -1,0 +1,2 @@
+{"comparison": "C_bm25_20 (Gemma 4 E2B) minus BM25 alone (top-3 ranking)", "n": 125, "paired_bootstrap_resamples": 5000,
+ "hit@1": {"diff": 0.112, "ci95": [0.016, 0.208]}, "hit@3": {"diff": 0.128, "ci95": [0.032, 0.224]}}
