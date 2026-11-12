@@ -1,5 +1,5 @@
 """Paired analyses on existing results: selection accuracy conditional on gold in candidate set; paired bootstrap diffs."""
-import json, random, sys
+import json, random, sys, zlib
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from common import ROOT
@@ -17,9 +17,10 @@ for s in S:
     if sub: out["conditional_hit@3_given_gold_in_candidates"][s] = (sum(h3(s, i) for i in sub) / len(sub), len(sub))
 def pdiff(a, b, f):
     d = [f(a, i) - f(b, i) for i in ids]
-    ms = sorted(sum(random.choices(d, k=len(d))) / len(d) for _ in range(5000))
+    rng = random.Random(zlib.crc32(f'{a}|{b}|{f.__name__}'.encode()))  # order-independent seed
+    ms = sorted(sum(rng.choices(d, k=len(d))) / len(d) for _ in range(5000))
     return sum(d) / len(d), ms[125], ms[4875]
-for a, b in [("D_graph","E_bm25_matched"),("C_bm25_20","B_tree"),("D_graph","C_bm25_20"),("E_bm25_matched","C_bm25_20"),
+for a, b in [("D_graph","E_bm25_matched"),("C_bm25_20","B_tree"),("E_bm25_matched","B_tree"),("D_graph","C_bm25_20"),("E_bm25_matched","C_bm25_20"),
                ("F_graph_edges","E_bm25_matched"),("F_graph_edges","D_graph"),
                ("G_callgraph","J_bm25_matched_call"),("H_callgraph_edges","J_bm25_matched_call"),("H_callgraph_edges","G_callgraph")]:
     if a in R and b in R:

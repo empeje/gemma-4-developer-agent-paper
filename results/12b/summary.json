@@ -13,6 +13,34 @@
     0.616
    ]
   },
+  "A_nocontext": {
+   "hit@1": [
+    0.296,
+    0.216,
+    0.376
+   ],
+   "hit@3": [
+    0.368,
+    0.288,
+    0.448
+   ],
+   "valid_path_rate": 0.41866666666666663
+  },
+  "B_tree": {
+   "hit@1": [
+    0.496,
+    0.416,
+    0.584
+   ],
+   "hit@3": [
+    0.656,
+    0.576,
+    0.736
+   ],
+   "valid_path_rate": 0.984,
+   "mean_cands": 77.192,
+   "cand_recall": 1.0
+  },
   "C_bm25_20": {
    "hit@1": [
     0.576,
@@ -31,7 +59,7 @@
   "D_graph": {
    "hit@1": [
     0.608,
-    0.528,
+    0.52,
     0.696
    ],
    "hit@3": [
@@ -46,8 +74,8 @@
   "E_bm25_matched": {
    "hit@1": [
     0.632,
-    0.552,
-    0.712
+    0.544,
+    0.72
    ],
    "hit@3": [
     0.792,
@@ -57,25 +85,91 @@
    "valid_path_rate": 0.968,
    "mean_cands": 38.936,
    "cand_recall": 0.944
+  },
+  "H_callgraph_edges": {
+   "hit@1": [
+    0.64,
+    0.552,
+    0.72
+   ],
+   "hit@3": [
+    0.8,
+    0.728,
+    0.864
+   ],
+   "valid_path_rate": 0.9893333333333334,
+   "mean_cands": 40.24,
+   "cand_recall": 0.944
+  },
+  "J_bm25_matched_call": {
+   "hit@1": [
+    0.616,
+    0.536,
+    0.704
+   ],
+   "hit@3": [
+    0.784,
+    0.712,
+    0.856
+   ],
+   "valid_path_rate": 0.9813333333333334,
+   "mean_cands": 40.24,
+   "cand_recall": 0.936
   }
  },
  "per_repo_hit@3": {
+  "A_nocontext": {
+   "fastapi/fastapi": [
+    0.36507936507936506,
+    63
+   ],
+   "Textualize/rich": [
+    0.4791666666666667,
+    48
+   ],
+   "psf/requests": [
+    0.0,
+    13
+   ],
+   "encode/httpx": [
+    0.0,
+    1
+   ]
+  },
+  "B_tree": {
+   "fastapi/fastapi": [
+    0.5873015873015873,
+    63
+   ],
+   "Textualize/rich": [
+    0.7083333333333334,
+    48
+   ],
+   "psf/requests": [
+    0.7692307692307693,
+    13
+   ],
+   "encode/httpx": [
+    1.0,
+    1
+   ]
+  },
   "C_bm25_20": {
    "fastapi/fastapi": [
     0.7777777777777778,
     63
    ],
-   "encode/httpx": [
-    1.0,
-    1
+   "Textualize/rich": [
+    0.6458333333333334,
+    48
    ],
    "psf/requests": [
     0.6923076923076923,
     13
    ],
-   "Textualize/rich": [
-    0.6458333333333334,
-    48
+   "encode/httpx": [
+    1.0,
+    1
    ]
   },
   "D_graph": {
@@ -83,17 +177,17 @@
     0.7142857142857143,
     63
    ],
-   "encode/httpx": [
-    1.0,
-    1
+   "Textualize/rich": [
+    0.8125,
+    48
    ],
    "psf/requests": [
     0.6923076923076923,
     13
    ],
-   "Textualize/rich": [
-    0.8125,
-    48
+   "encode/httpx": [
+    1.0,
+    1
    ]
   },
   "E_bm25_matched": {
@@ -101,17 +195,53 @@
     0.7777777777777778,
     63
    ],
-   "encode/httpx": [
-    1.0,
-    1
+   "Textualize/rich": [
+    0.7916666666666666,
+    48
    ],
    "psf/requests": [
     0.8461538461538461,
     13
    ],
+   "encode/httpx": [
+    1.0,
+    1
+   ]
+  },
+  "H_callgraph_edges": {
+   "fastapi/fastapi": [
+    0.8253968253968254,
+    63
+   ],
    "Textualize/rich": [
     0.7916666666666666,
     48
+   ],
+   "psf/requests": [
+    0.6923076923076923,
+    13
+   ],
+   "encode/httpx": [
+    1.0,
+    1
+   ]
+  },
+  "J_bm25_matched_call": {
+   "fastapi/fastapi": [
+    0.7619047619047619,
+    63
+   ],
+   "Textualize/rich": [
+    0.8333333333333334,
+    48
+   ],
+   "psf/requests": [
+    0.6923076923076923,
+    13
+   ],
+   "encode/httpx": [
+    1.0,
+    1
    ]
   }
  }

@@ -1,5 +1,9 @@
 {
  "conditional_hit@3_given_gold_in_candidates": {
+  "B_tree": [
+   0.656,
+   125
+  ],
   "C_bm25_20": [
    0.8181818181818182,
    110
@@ -11,6 +15,14 @@
   "E_bm25_matched": [
    0.8389830508474576,
    118
+  ],
+  "H_callgraph_edges": [
+   0.847457627118644,
+   118
+  ],
+  "J_bm25_matched_call": [
+   0.8290598290598291,
+   117
   ]
  },
  "paired_diff_hit@3": {
@@ -18,6 +30,16 @@
    -0.04,
    -0.104,
    0.024
+  ],
+  "C_bm25_20 - B_tree": [
+   0.064,
+   -0.024,
+   0.152
+  ],
+  "E_bm25_matched - B_tree": [
+   0.136,
+   0.056,
+   0.216
   ],
   "D_graph - C_bm25_20": [
    0.032,
@@ -28,23 +50,43 @@
    0.072,
    0.016,
    0.128
+  ],
+  "H_callgraph_edges - J_bm25_matched_call": [
+   0.016,
+   -0.056,
+   0.088
   ]
  },
  "paired_diff_hit@1": {
   "D_graph - E_bm25_matched": [
    -0.024,
    -0.096,
-   0.04
+   0.048
+  ],
+  "C_bm25_20 - B_tree": [
+   0.08,
+   -0.008,
+   0.168
+  ],
+  "E_bm25_matched - B_tree": [
+   0.136,
+   0.064,
+   0.208
   ],
   "D_graph - C_bm25_20": [
    0.032,
    -0.032,
-   0.096
+   0.104
   ],
   "E_bm25_matched - C_bm25_20": [
    0.056,
    -0.008,
    0.12
+  ],
+  "H_callgraph_edges - J_bm25_matched_call": [
+   0.024,
+   -0.048,
+   0.096
   ]
  },
  "graph_unique_recall_tasks": {

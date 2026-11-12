@@ -41,8 +41,13 @@
   ],
   "C_bm25_20 - B_tree": [
    0.16,
-   0.064,
+   0.072,
    0.256
+  ],
+  "E_bm25_matched - B_tree": [
+   0.152,
+   0.072,
+   0.24
   ],
   "D_graph - C_bm25_20": [
    -0.032,
@@ -72,7 +77,7 @@
   "H_callgraph_edges - J_bm25_matched_call": [
    0.032,
    -0.056,
-   0.112
+   0.12
   ],
   "H_callgraph_edges - G_callgraph": [
    0.08,
@@ -91,10 +96,15 @@
    -0.024,
    0.152
   ],
+  "E_bm25_matched - B_tree": [
+   0.112,
+   0.04,
+   0.184
+  ],
   "D_graph - C_bm25_20": [
    0.04,
    -0.04,
-   0.128
+   0.12
   ],
   "E_bm25_matched - C_bm25_20": [
    0.048,
@@ -103,8 +113,8 @@
   ],
   "F_graph_edges - E_bm25_matched": [
    -0.04,
-   -0.128,
-   0.04
+   -0.12,
+   0.048
   ],
   "F_graph_edges - D_graph": [
    -0.032,
@@ -113,12 +123,12 @@
   ],
   "G_callgraph - J_bm25_matched_call": [
    0.024,
-   -0.032,
+   -0.04,
    0.088
   ],
   "H_callgraph_edges - J_bm25_matched_call": [
    -0.056,
-   -0.144,
+   -0.152,
    0.04
   ],
   "H_callgraph_edges - G_callgraph": [
