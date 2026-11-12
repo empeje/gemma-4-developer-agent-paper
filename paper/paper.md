@@ -14,7 +14,7 @@ That idea is plausible but is usually evaluated by comparing against weaker base
 
 > **RQ.** At a fixed number of candidate files, does import-graph expansion help a small local model localize issues better than plain lexical retrieval?
 
-Contributions: (i) a controlled, size-matched protocol for evaluating structural context; (ii) a negative result for import-graph expansion at this scale, together with a decomposition into candidate recall and selection precision that locates the bottleneck; (iii) a fully reproducible harness (about 200 lines, runs on an Apple M1 Max in under 30 minutes for the 2B model).
+Contributions: (i) a controlled, size-matched protocol for evaluating structural context; (ii) a negative result for import-graph expansion at this scale, together with a decomposition into candidate recall and selection precision that locates the bottleneck; (iii) a fully reproducible harness (about 200 lines, runs on an Apple M1 Max in about 11 minutes of inference for the 2B model).
 
 ## 2. Related Work
 
@@ -26,7 +26,7 @@ Contributions: (i) a controlled, size-matched protocol for evaluating structural
 
 ## 3. Method
 
-**Data.** The 129 public tasks of the Gemma 4 Developer Agent competition (fastapi 67, rich 48, requests 13, httpx 1), each with issue text, base commit, and gold patch. They postdate typical training cutoffs. Localization target: the existing, non-test `.py` files modified by the gold patch (files created by the patch cannot be localized). 125 tasks have at least one such file (63 fastapi, 48 rich, 13 requests, 1 httpx); mean gold files per task: see `results/`.
+**Data.** The 129 public tasks of the Gemma 4 Developer Agent competition (fastapi 67, rich 48, requests 13, httpx 1), each with issue text, base commit, and gold patch. They postdate typical training cutoffs. Localization target: the existing, non-test `.py` files modified by the gold patch (files created by the patch cannot be localized). 125 tasks have at least one such file (63 fastapi, 48 rich, 13 requests, 1 httpx); mean 1.73 gold files per task.
 
 **Index.** At each task's base commit we read all non-test Python files. Retrieval uses BM25 over identifier-split tokens of path and content, queried with the first 6,000 characters of the issue. The import graph is built from `ast` parsing, with relative imports resolved to repository files and edges treated as undirected.
 
@@ -50,15 +50,32 @@ We also report BM25 alone (no LLM) as hit@1/hit@3 of its ranking.
 
 ### 4.1 Gemma 4 E2B
 
-RESULTS_E2B_TABLE
+n = 125 tasks; 95% bootstrap CIs in brackets.
+
+| System | hit@1 | hit@3 | valid paths | mean cands | cand. recall |
+|---|---|---|---|---|---|
+| BM25 alone (no LLM) | 0.328 [.248,.408] | 0.528 [.440,.616] | - | - | - |
+| A: no context | 0.104 [.056,.160] | 0.144 [.088,.208] | 0.09 | - | - |
+| B: full file tree | 0.376 [.288,.464] | 0.496 [.408,.584] | 0.98 | 77.2 | 1.00 |
+| C: BM25 top-20 | 0.440 [.352,.528] | 0.656 [.568,.736] | 0.99 | 19.9 | 0.88 |
+| D: BM25 top-5 + import graph | 0.480 [.392,.568] | 0.624 [.536,.704] | 0.98 | 38.9 | 0.95 |
+| E: BM25 size-matched to D | 0.488 [.408,.576] | 0.648 [.568,.728] | 0.97 | 38.9 | 0.94 |
 
 ### 4.2 Replication with Gemma 4 12B
 
-RESULTS_12B_TABLE
+*The 12B replication (strategies C, E, D) was still running when this draft was rendered; its results are not yet included.*
 
 ### 4.3 Analysis
 
-ANALYSIS
+**Context is necessary.** Without candidates (A), 91% of predicted paths do not exist; hit@3 is 0.144.
+
+**Narrow retrieval beats a full tree.** C improves on B by 16.0 points of hit@3 (paired 95% CI [6.4, 25.6]) although B's candidate recall is 1.0. Showing everything is worse than showing a good shortlist, so the model is distracted by irrelevant files. The LLM also improves on the lexical ranking it was given: hit@1 0.440 versus 0.328 for BM25 alone.
+
+**Graph expansion does not help once size is controlled.** D reaches higher candidate recall than C (0.95 vs 0.88) but a lower hit@3 (-3.2 points, CI [-11.2, 4.8]). Against the size-matched control E, the difference is -2.4 points (CI [-8.8, 4.0]) on hit@3 and -0.8 points (CI [-6.4, 4.8]) on hit@1. Graph neighbours supply the gold file that BM25 misses in only 4 tasks, while BM25 supplies one that the graph misses in 3. The graph's recall gain over C is mostly a size effect: E, with the same number of files but no structure, recovers 0.94.
+
+**Selection is the bottleneck.** Conditional on the gold file being among the candidates, hit@3 is 0.746 for C, 0.655 for D and 0.686 for E. A quarter to a third of cases fail even when the answer is on the screen. Gains in candidate recall cannot exceed this ceiling, which explains why recall improvements did not translate into hits.
+
+**By repository.** Hit@3 for C is 0.73 on fastapi (n=63), 0.56 on rich (n=48) and 0.62 on requests (n=13); the ordering of strategies is similar across repositories, though with these sample sizes per-repository differences are not significant.
 
 ## 5. Limitations
 
